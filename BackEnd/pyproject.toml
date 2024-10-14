@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "src"
+version = "0.1.0"
+description = ""
+authors = ["Amarildo <amarildozj@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+sqlalchemy = "^2.0.35"
+pyodbc = "^5.1.0"
+pyjwt = "^2.9.0"
+configparser = "^7.1.0"
+flask = "^3.0.3"
+pandas = "^2.2.3"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
