@@ -77,7 +77,6 @@ class Database:
             with self.Session() as session:
                 query = session.query(model).filter_by(**filters)
                 results = query.all()
-                print(results)
                 dto_list = [self.convert_to_dto(result) for result in results]
                 return dto_list
         except Exception as e:
@@ -175,9 +174,7 @@ class Database:
                 model_instance.TDValorFiltro,
                 model_instance.TDOperacao,
                 model_instance.TDIdArquivoProduto,
-                model_instance.TDIdUsuario,
-                arquivo_produto=self.convert_to_dto(model_instance.ArquivoProdutos) if model_instance.ArquivoProdutos else None,
-                usuario=self.convert_to_dto(model_instance.Usuarios) if model_instance.Usuarios else None
+                model_instance.TDIdUsuario
             ).to_dict()
         
         elif isinstance(model_instance, Usuarios):

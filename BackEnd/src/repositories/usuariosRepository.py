@@ -96,7 +96,6 @@ class UserRepository():
         
         
     def FindUserById(self,idUsuario):
-        print(idUsuario)
         Data = Database()
         response = Data.DoSelect(Usuarios,USUid=idUsuario)
         if len(response) > 0:

@@ -19,24 +19,17 @@ class ArquivosProdutosRepository():
         response,message = self.VerifyData(self.request,delimiter,idUsuario,versao)
         if response == 400:
             return response,message
-        
         Data = Database()
         response = Data.DoSelect(ArquivoProdutos,APVersao=versao)
         if len(response) > 0:
             return 400,'Já existe um arquivo com esta versão.'
-        
-        UserRepo = UserRepository()
+        UserRepo = UserRepository('')
         response,message = UserRepo.FindUserById(idUsuario)
         if response == 400:
-            return response,message
-        
-        
-        file_content = self.ConteudoArquivo.stream.read()
-        
-        response = Data.DoInsert(ArquivoProdutos,ApQtdeProdutos=int(len(self.ArquivoCSV)),ApDataPostagem = datetime.date,ApArquivo = file_content,ApIdUsuario = idUsuario ,ApVersao = versao)
+            return response,message  
+        response = Data.DoInsert(ArquivoProdutos,APQtdeProdutos=len(self.ArquivoCSV),APDataPostagem = datetime.date.today(),APArquivo = self.file_content,APIdUsuario = idUsuario ,APVersao = versao)
         if response is None:
             return 400,'Ocorreu um erro ao inserir o registro, tente novamente.'
-        
         return 200,''
         
         
@@ -45,14 +38,20 @@ class ArquivosProdutosRepository():
             if 'file' not in request.files:
                 return 400,'Nenhum arquivo enviado.'
             
-            file = request.files['file']
-            if file.filename == '':
+            arquivo = request.files['file']
+            if arquivo.filename == '':
                 return 400, 'Nenhum nome de arquivo enviado.'
             
-            if not file.filename.endswith('.csv'):
+            if not arquivo.filename.endswith('.csv'):
                 return 400,'O arquivo não é CSV.'
             
-            csv_data = pd.read_csv(io.StringIO(file.stream.read().decode('ISO-8859-1')), delimiter=delimiter)
+            self.file_content  = arquivo.stream.read()
+            
+            try:
+                csv_data = pd.read_csv(io.StringIO(self.file_content.decode('ISO-8859-1')), delimiter=delimiter)
+            except pd.errors.ParserError as e:
+                return 400, f"Erro ao processar o arquivo CSV, verifique o delimitador: {str(e)}"
+            
             if len(csv_data) < 4:
                 return 400, 'O arquivo não contém os registros mínimos necessários que são 4.'
             
@@ -66,8 +65,6 @@ class ArquivosProdutosRepository():
                 return 400,'Parâmetro versao é obrigatório'
             
             self.ArquivoCSV = csv_data
-            self.ConteudoArquivo = file
-            
             return 200,''
         except Exception as error:
             return 400,error
@@ -89,7 +86,6 @@ class ArquivosProdutosRepository():
     def FindFileById(self,idArquivo):
         Data = Database()
         response = Data.DoSelect(ArquivoProdutos,APId= idArquivo)
-        print(response)
         if len(response) == 0:
             return 400,'Não foi encontrado o arquivo que contém os produtos.'
         return 200,''

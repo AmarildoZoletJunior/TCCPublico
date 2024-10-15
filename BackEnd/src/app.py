@@ -79,7 +79,7 @@ def SignInAccount():
             return jsonify({'Erro': 'Usuário não encontrado'}), 400
 
     except Exception as e:
-        return jsonify({'Erro': f'Ocorreu um erro, erro: {e}'}), 500
+        return jsonify({'Erro': f'Ocorreu um erro: {e}'}), 500
     
     
     
@@ -91,16 +91,13 @@ def SignInAccount():
 @app.route('/enviarArquivoProduto',methods=['POST'])
 def UploadProductsFile():
     try:
-        Arquivo = ArquivosProdutosRepository()
-        response,message = Arquivo.VerifyData(request)
-        if response == 400:
-            return jsonify({'Erro': f'Ocorreu um erro, erro: {message}'}), 500
+        Arquivo = ArquivosProdutosRepository(request)
         response,message = Arquivo.InsertDataFile()
         if response == 400:
-            return jsonify({'Erro': f'Ocorreu um erro, erro: {message}'}), 500
+            return jsonify({'Erro': f'Ocorreu um erro: {message}'}), 500
         return jsonify({'Mensagem': f'Arquivo de produtos registrado com sucesso.'}), 200
     except Exception as error:
-        return jsonify({'Erro': f'Ocorreu um erro, erro: {error}'}), 500
+        return jsonify({'Erro': f'Ocorreu um erro: {error}'}), 500
         
 @app.route('/removerArquivoProduto/<int:IdArquivo>',methods=['DELETE'])
 def DeleteUploadedProductsFile(IdArquivo):
@@ -108,10 +105,10 @@ def DeleteUploadedProductsFile(IdArquivo):
         Arquivo = ArquivosProdutosRepository()
         response,message = Arquivo.RemoveFileProducts(IdArquivo)
         if response == 400:
-            return jsonify({'Erro': f'Ocorreu um erro, erro: {message}'}), 400
+            return jsonify({'Erro': f'Ocorreu um erro: {message}'}), 400
         return jsonify({'Mensagem': f''}), 200
     except Exception as error:
-        return jsonify({'Erro': f'Ocorreu um erro, erro: {error}'}), 500
+        return jsonify({'Erro': f'Ocorreu um erro: {error}'}), 500
         
         
         
@@ -121,28 +118,28 @@ def CreateTrainingParameters():
     try:
         print("")
     except Exception as error:
-        return jsonify({'Erro': f'Ocorreu um erro, erro: {error}'}), 500
+        return jsonify({'Erro': f'Ocorreu um erro: {error}'}), 500
         
 @app.route('/editarParametroTreinamento/<int:IdParametro>',methods=['PUT'])
 def EditTrainingParameters(IdParametro):
     try:
         print("")
     except Exception as error:
-        return jsonify({'Erro': f'Ocorreu um erro, erro: {error}'}), 500
+        return jsonify({'Erro': f'Ocorreu um erro: {error}'}), 500
         
 @app.route('/removerParametroTreinamento/<int:IdParametro>',methods=['DELETE'])
 def DeleteTrainingParameters(IdParametro):
     try:
         print("")
     except Exception as error:
-        return jsonify({'Erro': f'Ocorreu um erro, erro: {error}'}), 500
+        return jsonify({'Erro': f'Ocorreu um erro: {error}'}), 500
 
 @app.route('/listarTodosParametrosTreinamentos',methods=['GET'])
 def ListAllTrainingParameters():
     try:
         print("")
     except Exception as error:
-        return jsonify({'Erro': f'Ocorreu um erro, erro: {error}'}), 500
+        return jsonify({'Erro': f'Ocorreu um erro: {error}'}), 500
         
         
         
@@ -152,21 +149,21 @@ def ListAllTrainingModels():
     try:
         print("")
     except Exception as error:
-        return jsonify({'Erro': f'Ocorreu um erro, erro: {error}'}), 500
+        return jsonify({'Erro': f'Ocorreu um erro: {error}'}), 500
         
 @app.route('/gerarModelo/<int:IdArquivo>',methods=['POST'])
 def GenerateModel(IdArquivo):
     try:
         print("")
     except Exception as error:
-        return jsonify({'Erro': f'Ocorreu um erro, erro: {error}'}), 500
+        return jsonify({'Erro': f'Ocorreu um erro: {error}'}), 500
         
 @app.route('/removerModelo/<int:IdModelo>',methods=['DELETE'])
 def DeleteModel(IdModelo):
     try:
         print("")
     except Exception as error:
-        return jsonify({'Erro': f'Ocorreu um erro, erro: {error}'}), 500
+        return jsonify({'Erro': f'Ocorreu um erro: {error}'}), 500
         
     
         
@@ -178,23 +175,23 @@ def CreateDataProcessing():
         TratamentoDados = TratamentoDadosRepository(data)
         response,message = TratamentoDados.CreateDataProcessing()
         if response == 400:
-            return jsonify({'Erro': f'Ocorreu um erro, erro: {message}'}), 500
+            return jsonify({'Erro': f'Ocorreu um erro: {message}'}), 500
         return jsonify({'Mensagem': f'Arquivo de produtos registrado com sucesso.'}), 200
     except Exception as error:
-        return jsonify({'Erro': f'Ocorreu um erro, erro: {error}'}), 500
+        return jsonify({'Erro': f'Ocorreu um erro: {error}'}), 500
         
 @app.route('/editarTratamentoDados/<int:IdTratamento>',methods=['POST'])
 def EditDataProcessing(IdTratamento):
     try:
         print("")
     except Exception as error:
-        return jsonify({'Erro': f'Ocorreu um erro, erro: {error}'}), 500
+        return jsonify({'Erro': f'Ocorreu um erro: {error}'}), 500
         
 @app.route('/removerTratamentoDados/<int:IdTratamento>',methods=['DELETE'])
 def DeleteDataProcessing(IdTratamento):
     try:
         print("")
     except Exception as error:
-        return jsonify({'Erro': f'Ocorreu um erro, erro: {error}'}), 500
+        return jsonify({'Erro': f'Ocorreu um erro: {error}'}), 500
         
         
