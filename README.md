@@ -6,7 +6,7 @@
 
 * [Tecnologias Utilizadas](#Tecnologias-Utilizadas)
   * [Back-End](#Back-End)
-  * [CI/CD](#CI/CD)
+  * [CI/CD](#CICD)
   * [Banco De Dados](#Banco-de-dados)
   * [Testes de Qualidade](#Testes-de-qualidade)
 * [Como iniciar o projeto](#Como-iniciar)
