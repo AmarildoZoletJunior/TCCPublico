@@ -43,6 +43,7 @@ class TratamentoDadosRepository():
             return response,message
         if tipoOP in OperacaoEnum._value2member_map_:
             match tipoOP:
+                 
                 case 1:#Inserção de valores
                     #{"tipoOP":1,"idArquivo":50,"idUsuario":1,"filtros":[{'campoFiltro':2,'tipoFiltro':1,"valorFiltro":'Abobora'}],"configuracoesAdicionais":{"atributoModificacao":1,"tipoInsercaoDados":1,"valorNovo":'Abobora verde'}} 
                     configuracoesAdicionais = self.Data.get('configuracoesAdicionais')
@@ -51,42 +52,87 @@ class TratamentoDadosRepository():
                     
                     if not configuracoesAdicionais:
                         return 400,'Parâmetro configuracoesAdicionais é obrigatório'
-                    
-                    atributoModificacao = configuracoesAdicionais['atributoModificacao']
+
+                    atributoModificacao = configuracoesAdicionais.get('atributoModificacao')
                     if atributoModificacao is not None:
                         return 400,'Propriedade atributoModificacao da propriedade configuracoesAdicionais não foi encontrado.'
                     
-                    tipoInsercaoDados = configuracoesAdicionais['tipoInsercaoDados']
+                    tipoInsercaoDados = configuracoesAdicionais.get('tipoInsercaoDados')
                     if tipoInsercaoDados is not None:
                         return 400,'Propriedade tipoInsercaoDados da propriedade configuracoesAdicionais não foi encontrado.'
                     
-                    valorNovo = configuracoesAdicionais['valorNovo']
+                    if not isinstance(tipoInsercaoDados, int):
+                        return 400,'O tipoInsercaoDados deve ser do tipo inteiro.'
+
+                    valorNovo = configuracoesAdicionais.get('valorNovo')
                     if valorNovo is not None:
                         return 400,'Propriedade valorNovo da propriedade configuracoesAdicionais não foi encontrado.'
                     
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                    configuracoesAdicionaisJson = json.dumps(configuracoesAdicionais)
+                    QtdeFiltros = len(valorFiltro)
+                    if QtdeFiltros > 0:
+                        valorFiltroJson = json.dumps(valorFiltro)
+                        response,message = self.FindDataProcessingByFilterValue(idArquivo,valorFiltroJson,operacao)
+                        if response == 400:
+                                return response,message
+                        variavelrep = VariaveisTreinamentoRepository('')
+                        for valor in valorFiltro:
+                            # region verificação campo Filtro
+                            if not valor.get('campoFiltro'):
+                                return 400,f'Não foi encontrado o campo que será usado como filtro.'
+                            if not isinstance(valor.get('campoFiltro'), int):
+                                return 400,f'O campoFiltro deve ser do tipo inteiro.'
+                            response,message,data = variavelrep.FindVariableById(valor['campoFiltro'])
+                            if response == 400:
+                                return response, f'Ocorreu um erro ao salvar tratamento de dados, não foi encontrado o campo que será usado como filtro, número do campo: {valor['campoFiltro']}.'
+                            # endregion       
+                            # region verificação campo tipoFiltro
+                            if not valor.get('tipoFiltro'):
+                                return 400,f'Não foi encontrado o tipo de filtro que será usado.'
+                            if not isinstance(valor.get('tipoFiltro'), int):
+                                return 400,f'O tipoFiltro deve ser do tipo inteiro.'
+                            #endregion
+                            # region verificação campo valorFiltro
+                            if not valor.get('valorFiltro'):
+                                return 400,f'Não foi encontrado o valor do filtro que será usado.'
+                            #endregion
+                            response, message = self.comparar_tipo_dado(valor.get('valorFiltro'), data[0]['VTTipoDado'])
+                            if response == 400:
+                                return response,message  
+                            
+                                         
+                        response,message,data = variavelrep.FindVariableById(atributoModificacao)
+                        if response == 400:
+                                return response, f'Ocorreu um erro ao salvar tratamento de dados, não foi encontrado o campo que será usado como atributo a ser modificado, número do campo: {atributoModificacao}.'
+                        response, message = self.comparar_tipo_dado(valorNovo, data[0]['VTTipoDado'])
+                        if response == 400:
+                                return response,message
+                        response,message = self.FindDataProcessingByAdditionalFilter(idArquivo,configuracoesAdicionaisJson,operacao)
+                        if response == 400:
+                            return response,message     
+                        response = Data.DoInsert(TratamentoDados,TDValorFiltro=valorFiltroJson,TDOperacao=operacao,TDIdArquivoProduto=idArquivo,TDIdUsuario=idUsuario,TDConfiguracoesAdicionais = configuracoesAdicionaisJson)
+                        if response is None:
+                            return 400,'Ocorreu um erro ao salvar os dados, tente novamente.'
+                        return 200,''
+                    else:
+                        response,message,data = variavelrep.FindVariableById(atributoModificacao)
+                        if response == 400:
+                                return response, f'Ocorreu um erro ao salvar tratamento de dados, não foi encontrado o campo que será usado como atributo a ser modificado, número do campo: {atributoModificacao}.'
+                        response, message = self.comparar_tipo_dado(valorNovo, data[0]['VTTipoDado'])
+                        if response == 400:
+                                return response,message
+                        response,message = self.FindDataProcessingByAdditionalFilter(idArquivo,configuracoesAdicionaisJson,operacao)
+                        if response == 400:
+                            return response,message     
+                        response = Data.DoInsert(TratamentoDados,TDValorFiltro=valorFiltroJson,TDOperacao=operacao,TDIdArquivoProduto=idArquivo,TDIdUsuario=idUsuario,TDConfiguracoesAdicionais = configuracoesAdicionaisJson)
+                        if response is None:
+                            return 400,'Ocorreu um erro ao salvar os dados, tente novamente.'
+                        return 200,''
 
                 case 2:#Substituição de valores
                     #{"tipoOP":2,"idArquivo":50,"idUsuario":1,"filtros":[{'campoFiltro':2,'tipoFiltro':1,"valorFiltro":'Abobora'}],"configuracoesAdicionais":{"atributoModificacao":1,"ValorAlvo":'Abobora',"valorNovo":'Abobora verde'}} 
+                    operacao = self.operacao_mapeada.get(tipoOP)
+
                     configuracoesAdicionais = self.Data.get('configuracoesAdicionais')
                     if not isinstance(configuracoesAdicionais, dict):
                         return 400,'Dicionário de configuracoesAdicionais é obrigatório'
@@ -94,41 +140,84 @@ class TratamentoDadosRepository():
                     if not configuracoesAdicionais:
                         return 400,'Parâmetro configuracoesAdicionais é obrigatório'
                     
-                    ValorAlvo = configuracoesAdicionais.get(['ValorAlvo'])
+                    ValorAlvo = configuracoesAdicionais.get('ValorAlvo')
                     if ValorAlvo is None:
                         return 400,'Propriedade ValorAlvo da propriedade configuracoesAdicionais não foi encontrado.'
                     
-                    atributoModificacao = configuracoesAdicionais.get(['atributoModificacao'])
+                    atributoModificacao = configuracoesAdicionais.get('atributoModificacao')
                     if atributoModificacao is None:
                         return 400,'Propriedade atributoModificacao da propriedade configuracoesAdicionais não foi encontrado.'
                     
-                    valorNovo = configuracoesAdicionais.get(['valorNovo'])
+                    valorNovo = configuracoesAdicionais.get('valorNovo')
                     if valorNovo is None:
                         return 400,'Propriedade valorNovo da propriedade configuracoesAdicionais não foi encontrado.'
                     
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
+                    configuracoesAdicionaisJson = json.dumps(configuracoesAdicionais)
+                    QtdeFiltros = len(valorFiltro)
+                    if QtdeFiltros > 0:
+                        valorFiltroJson = json.dumps(valorFiltro)
+                        response,message = self.FindDataProcessingByFilterValue(idArquivo,valorFiltroJson,operacao)
+                        if response == 400:
+                                return response,message
+                        variavelrep = VariaveisTreinamentoRepository('')
+                        for valor in valorFiltro:
+                            # region verificação campo Filtro
+                            if not valor.get('campoFiltro'):
+                                return 400,f'Não foi encontrado o campo que será usado como filtro.'
+                            if not isinstance(valor.get('campoFiltro'), int):
+                                return 400,f'O campoFiltro deve ser do tipo inteiro.'
+                            response,message,data = variavelrep.FindVariableById(valor['campoFiltro'])
+                            if response == 400:
+                                return response, f'Ocorreu um erro ao salvar tratamento de dados, não foi encontrado o campo que será usado como filtro, número do campo: {valor['campoFiltro']}.'
+                            # endregion       
+                            # region verificação campo tipoFiltro
+                            if not valor.get('tipoFiltro'):
+                                return 400,f'Não foi encontrado o tipo de filtro que será usado.'
+                            if not isinstance(valor.get('tipoFiltro'), int):
+                                return 400,f'O tipoFiltro deve ser do tipo inteiro.'
+                            #endregion
+                            # region verificação campo valorFiltro
+                            if not valor.get('valorFiltro'):
+                                return 400,f'Não foi encontrado o valor do filtro que será usado.'
+                            #endregion
+                            response, message = self.comparar_tipo_dado(valor.get('valorFiltro'), data[0]['VTTipoDado'])
+                            if response == 400:
+                                return response,message  
+                                         
+                        response,message,data = variavelrep.FindVariableById(atributoModificacao)
+                        if response == 400:
+                                return response, f'Ocorreu um erro ao salvar tratamento de dados, não foi encontrado o campo que será usado como atributo a ser modificado, número do campo: {atributoModificacao}.'
+                        response, message = self.comparar_tipo_dado(ValorAlvo, data[0]['VTTipoDado'])
+                        if response == 400:
+                                return response,message
+                        response, message = self.comparar_tipo_dado(valorNovo, data[0]['VTTipoDado'])
+                        if response == 400:
+                                return response,message
+                        response,message = self.FindDataProcessingByAdditionalFilter(idArquivo,configuracoesAdicionaisJson,operacao)
+                        if response == 400:
+                            return response,message     
+                        response = Data.DoInsert(TratamentoDados,TDValorFiltro=valorFiltroJson,TDOperacao=operacao,TDIdArquivoProduto=idArquivo,TDIdUsuario=idUsuario,TDConfiguracoesAdicionais = configuracoesAdicionaisJson)
+                        if response is None:
+                            return 400,'Ocorreu um erro ao salvar os dados, tente novamente.'
+                        return 200,''
+                    else:
+
+                        response,message,data = variavelrep.FindVariableById(atributoModificacao)
+                        if response == 400:
+                                return response, f'Ocorreu um erro ao salvar tratamento de dados, não foi encontrado o campo que será usado como atributo a ser modificado, número do campo: {atributoModificacao}.'
+                        response, message = self.comparar_tipo_dado(ValorAlvo, data[0]['VTTipoDado'])
+                        if response == 400:
+                                return response,message
+                        response, message = self.comparar_tipo_dado(valorNovo, data[0]['VTTipoDado'])
+                        if response == 400:
+                                return response,message
+                        response,message = self.FindDataProcessingByAdditionalFilter(idArquivo,configuracoesAdicionaisJson,operacao)
+                        if response == 400:
+                            return response,message     
+                        response = Data.DoInsert(TratamentoDados,TDValorFiltro=valorFiltroJson,TDOperacao=operacao,TDIdArquivoProduto=idArquivo,TDIdUsuario=idUsuario,TDConfiguracoesAdicionais = configuracoesAdicionaisJson)
+                        if response is None:
+                            return 400,'Ocorreu um erro ao salvar os dados, tente novamente.'
+                        return 200,''
                     
                 case 3:#Remoção de valores
                     #{"tipoOP":3,"idArquivo":50,"idUsuario":1,"filtros":[{'campoFiltro':2,'tipoFiltro':1,"valorFiltro":'Abobora'}],"configuracoesAdicionais":{"atributoModificacao":1,"ValorRemover":'Abobora verde'}} 
@@ -152,8 +241,8 @@ class TratamentoDadosRepository():
                         return 400,f'O atributoModificacao deve ser do tipo inteiro.'
                     
                     configuracoesAdicionaisJson = json.dumps(configuracoesAdicionais)
-                    tamanhoDataSet = len(valorFiltro)
-                    if tamanhoDataSet > 0:
+                    QtdeFiltros = len(valorFiltro)
+                    if QtdeFiltros > 0:
                         
                         valorFiltroJson = json.dumps(valorFiltro)
                         response,message = self.FindDataProcessingByFilterValue(idArquivo,valorFiltroJson,operacao)
@@ -182,10 +271,11 @@ class TratamentoDadosRepository():
                             #endregion
                             response, message = self.comparar_tipo_dado(valor.get('valorFiltro'), data[0]['VTTipoDado'])
                             if response == 400:
-                                return response,message               
+                                return response,message   
+                                        
                         response,message,data = variavelrep.FindVariableById(atributoModificacao)
                         if response == 400:
-                                return response, f'Ocorreu um erro ao salvar tratamento de dados, não foi encontrado o campo que será usado como filtro, número do campo: {atributoModificacao}.'
+                                return response, f'Ocorreu um erro ao salvar tratamento de dados, não foi encontrado o campo que será usado como atributo a ser modificado, número do campo: {atributoModificacao}.'
                         response, message = self.comparar_tipo_dado(ValorRemover, data[0]['VTTipoDado'])
                         if response == 400:
                                 return response,message
@@ -198,7 +288,7 @@ class TratamentoDadosRepository():
                         return 200,''
                     else:
                         
-                        variavelrep = VariaveisTreinamentoRepository('') #Remover os valores nas configurações adicionais
+                        variavelrep = VariaveisTreinamentoRepository('')
                         
                         response,message,data = variavelrep.FindVariableById(atributoModificacao)
                         if response == 400:
@@ -216,9 +306,10 @@ class TratamentoDadosRepository():
                         if response is None:
                             return 400,'Ocorreu um erro ao salvar os dados, tente novamente.'
                         return 200,''
+                    
                 case 4:#Exclusão do registro
-                    tamanhoDataSet = len(valorFiltro)
-                    if tamanhoDataSet > 0:
+                    QtdeFiltros = len(valorFiltro)
+                    if QtdeFiltros > 0:
                         variavelrep = VariaveisTreinamentoRepository('')
                         for valor in valorFiltro: 
                             # region verificação campo Filtro
