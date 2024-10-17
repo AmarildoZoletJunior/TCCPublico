@@ -1,4 +1,5 @@
 import io
+
 import jwt
 import datetime
 from functools import wraps
@@ -9,6 +10,12 @@ import pandas as pd
 from repositories.tratamentoDadosRepository import TratamentoDadosRepository
 from repositories.usuariosRepository import UserRepository
 from repositories.arquivosProdutosRepository import ArquivosProdutosRepository
+from repositories.variaveisTreinamentosRepository import VariaveisTreinamentoRepository
+from repositories.parametrosTreinamentoRepository import ParametrosTreinamentoRepository
+from repositories.usuariosRepository import UserRepository
+
+
+
 
 from src.data.database import Database
 from src.config import configuration
@@ -193,5 +200,49 @@ def DeleteDataProcessing(IdTratamento):
         print("")
     except Exception as error:
         return jsonify({'Erro': f'Ocorreu um erro: {error}'}), 500
+    
+    
+    
+    
+    
+    
+    
+    
+    
+@app.route('/adicionarVariavel',methods=['POST'])
+def CreateVariable():
+    try:
+        data = request.get_json(force=True)
+        variavelRep = VariaveisTreinamentoRepository(data)
+        response,message = variavelRep.CreateVariable()
+        if response == 400:
+            return jsonify({'Erro': f'Ocorreu um erro: {message}'}), 500
+        return jsonify({'Mensagem': f'Variável registrada com sucesso.'}), 200
+    except Exception as error:
+        return jsonify({'Erro': f'Ocorreu um erro: {error}'}), 500
+    
         
+@app.route('/editarVariavel/<int:idVariavel>',methods=['PUT'])
+def UpdateVariable(idVariavel):
+    try:
+        data = request.get_json(force=True)
+        variavelRep = VariaveisTreinamentoRepository(data)
+        response,message = variavelRep.UpdateVariable(idVariavel)
+        if response == 400:
+            return jsonify({'Erro': f'Ocorreu um erro: {message}'}), 500
+        return jsonify({'Mensagem': f'Variável editada com sucesso.'}), 200
+    except Exception as error:
+        return jsonify({'Erro': f'Ocorreu um erro: {error}'}), 500
+    
+@app.route('/removerVariavel/<int:idVariavel>',methods=['DELETE'])
+def DeleteVariable(idVariavel):
+    try:
+        variavelRep = VariaveisTreinamentoRepository('')
+        response,message = variavelRep.DeleteVariable(idVariavel)
+        if response == 400:
+            return jsonify({'Erro': f'Ocorreu um erro: {message}'}), 500
+        return jsonify({'Mensagem': f'Variável removida com sucesso.'}), 200
+    except Exception as error:
+        return jsonify({'Erro': f'Ocorreu um erro: {error}'}), 500
+               
         

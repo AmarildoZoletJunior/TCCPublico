@@ -47,32 +47,34 @@ class TratamentoDadosRepository():
                 case 1:#Inserção de valores
                     #{"tipoOP":1,"idArquivo":50,"idUsuario":1,"filtros":[{'campoFiltro':2,'tipoFiltro':1,"valorFiltro":'Abobora'}],"configuracoesAdicionais":{"atributoModificacao":1,"tipoInsercaoDados":1,"valorNovo":'Abobora verde'}} 
                     configuracoesAdicionais = self.Data.get('configuracoesAdicionais')
-                    if not isinstance(configuracoesAdicionais, dict):
-                        return 400,'Dicionário de configuracoesAdicionais é obrigatório'
+                    operacao = self.operacao_mapeada.get(tipoOP)
                     
                     if not configuracoesAdicionais:
                         return 400,'Parâmetro configuracoesAdicionais é obrigatório'
-
+                    
+                    if not isinstance(configuracoesAdicionais, dict):
+                        return 400,'Dicionário de configuracoesAdicionais é obrigatório'
+                    
                     atributoModificacao = configuracoesAdicionais.get('atributoModificacao')
-                    if atributoModificacao is not None:
+                    if atributoModificacao is None:
                         return 400,'Propriedade atributoModificacao da propriedade configuracoesAdicionais não foi encontrado.'
                     
                     tipoInsercaoDados = configuracoesAdicionais.get('tipoInsercaoDados')
-                    if tipoInsercaoDados is not None:
+                    if tipoInsercaoDados is None:
                         return 400,'Propriedade tipoInsercaoDados da propriedade configuracoesAdicionais não foi encontrado.'
                     
                     if not isinstance(tipoInsercaoDados, int):
                         return 400,'O tipoInsercaoDados deve ser do tipo inteiro.'
 
                     valorNovo = configuracoesAdicionais.get('valorNovo')
-                    if valorNovo is not None:
+                    if valorNovo is None:
                         return 400,'Propriedade valorNovo da propriedade configuracoesAdicionais não foi encontrado.'
                     
                     configuracoesAdicionaisJson = json.dumps(configuracoesAdicionais)
                     QtdeFiltros = len(valorFiltro)
                     if QtdeFiltros > 0:
                         valorFiltroJson = json.dumps(valorFiltro)
-                        response,message = self.FindDataProcessingByFilterValue(idArquivo,valorFiltroJson,operacao)
+                        response,message = self.FindDataProcessingByAdditionalFilter(idArquivo,valorFiltroJson,operacao)
                         if response == 400:
                                 return response,message
                         variavelrep = VariaveisTreinamentoRepository('')
@@ -96,7 +98,7 @@ class TratamentoDadosRepository():
                             if not valor.get('valorFiltro'):
                                 return 400,f'Não foi encontrado o valor do filtro que será usado.'
                             #endregion
-                            response, message = self.comparar_tipo_dado(valor.get('valorFiltro'), data[0]['VTTipoDado'])
+                            response, message = self.CompararTipoDado(valor['valorFiltro'], data[0]['VTTipoDado'],'valorFiltro')
                             if response == 400:
                                 return response,message  
                             
@@ -104,7 +106,7 @@ class TratamentoDadosRepository():
                         response,message,data = variavelrep.FindVariableById(atributoModificacao)
                         if response == 400:
                                 return response, f'Ocorreu um erro ao salvar tratamento de dados, não foi encontrado o campo que será usado como atributo a ser modificado, número do campo: {atributoModificacao}.'
-                        response, message = self.comparar_tipo_dado(valorNovo, data[0]['VTTipoDado'])
+                        response, message = self.CompararTipoDado(valorNovo, data[0]['VTTipoDado'],'valorNovo')
                         if response == 400:
                                 return response,message
                         response,message = self.FindDataProcessingByAdditionalFilter(idArquivo,configuracoesAdicionaisJson,operacao)
@@ -118,7 +120,7 @@ class TratamentoDadosRepository():
                         response,message,data = variavelrep.FindVariableById(atributoModificacao)
                         if response == 400:
                                 return response, f'Ocorreu um erro ao salvar tratamento de dados, não foi encontrado o campo que será usado como atributo a ser modificado, número do campo: {atributoModificacao}.'
-                        response, message = self.comparar_tipo_dado(valorNovo, data[0]['VTTipoDado'])
+                        response, message = self.CompararTipoDado(valorNovo, data[0]['VTTipoDado'],'valorNovo')
                         if response == 400:
                                 return response,message
                         response,message = self.FindDataProcessingByAdditionalFilter(idArquivo,configuracoesAdicionaisJson,operacao)
@@ -180,17 +182,18 @@ class TratamentoDadosRepository():
                             if not valor.get('valorFiltro'):
                                 return 400,f'Não foi encontrado o valor do filtro que será usado.'
                             #endregion
-                            response, message = self.comparar_tipo_dado(valor.get('valorFiltro'), data[0]['VTTipoDado'])
+                            response, message = self.CompararTipoDado(valor.get('valorFiltro'), data[0]['VTTipoDado'],'valorFiltro')
                             if response == 400:
-                                return response,message  
+                                return response,message 
                                          
                         response,message,data = variavelrep.FindVariableById(atributoModificacao)
                         if response == 400:
                                 return response, f'Ocorreu um erro ao salvar tratamento de dados, não foi encontrado o campo que será usado como atributo a ser modificado, número do campo: {atributoModificacao}.'
-                        response, message = self.comparar_tipo_dado(ValorAlvo, data[0]['VTTipoDado'])
+                            
+                        response, message = self.CompararTipoDado(ValorAlvo, data[0]['VTTipoDado'],'ValorAlvo')
                         if response == 400:
                                 return response,message
-                        response, message = self.comparar_tipo_dado(valorNovo, data[0]['VTTipoDado'])
+                        response, message = self.CompararTipoDado(valorNovo, data[0]['VTTipoDado'],'ValorNovo')
                         if response == 400:
                                 return response,message
                         response,message = self.FindDataProcessingByAdditionalFilter(idArquivo,configuracoesAdicionaisJson,operacao)
@@ -205,10 +208,10 @@ class TratamentoDadosRepository():
                         response,message,data = variavelrep.FindVariableById(atributoModificacao)
                         if response == 400:
                                 return response, f'Ocorreu um erro ao salvar tratamento de dados, não foi encontrado o campo que será usado como atributo a ser modificado, número do campo: {atributoModificacao}.'
-                        response, message = self.comparar_tipo_dado(ValorAlvo, data[0]['VTTipoDado'])
+                        response, message = self.CompararTipoDado(ValorAlvo, data[0]['VTTipoDado'],'valorAlvo')
                         if response == 400:
                                 return response,message
-                        response, message = self.comparar_tipo_dado(valorNovo, data[0]['VTTipoDado'])
+                        response, message = self.CompararTipoDado(valorNovo, data[0]['VTTipoDado'],'valorNovo')
                         if response == 400:
                                 return response,message
                         response,message = self.FindDataProcessingByAdditionalFilter(idArquivo,configuracoesAdicionaisJson,operacao)
@@ -245,9 +248,6 @@ class TratamentoDadosRepository():
                     if QtdeFiltros > 0:
                         
                         valorFiltroJson = json.dumps(valorFiltro)
-                        response,message = self.FindDataProcessingByFilterValue(idArquivo,valorFiltroJson,operacao)
-                        if response == 400:
-                                return response,message
                         variavelrep = VariaveisTreinamentoRepository('')
                         for valor in valorFiltro:
                             # region verificação campo Filtro
@@ -269,14 +269,13 @@ class TratamentoDadosRepository():
                             if not valor.get('valorFiltro'):
                                 return 400,f'Não foi encontrado o valor do filtro que será usado.'
                             #endregion
-                            response, message = self.comparar_tipo_dado(valor.get('valorFiltro'), data[0]['VTTipoDado'])
+                            response, message = self.CompararTipoDado(valor['valorFiltro'], data[0]['VTTipoDado'],'valorFiltro')
                             if response == 400:
                                 return response,message   
-                                        
                         response,message,data = variavelrep.FindVariableById(atributoModificacao)
                         if response == 400:
                                 return response, f'Ocorreu um erro ao salvar tratamento de dados, não foi encontrado o campo que será usado como atributo a ser modificado, número do campo: {atributoModificacao}.'
-                        response, message = self.comparar_tipo_dado(ValorRemover, data[0]['VTTipoDado'])
+                        response, message = self.CompararTipoDado(ValorRemover, data[0]['VTTipoDado'],'ValorRemover')
                         if response == 400:
                                 return response,message
                         response,message = self.FindDataProcessingByAdditionalFilter(idArquivo,configuracoesAdicionaisJson,operacao)
@@ -293,11 +292,9 @@ class TratamentoDadosRepository():
                         response,message,data = variavelrep.FindVariableById(atributoModificacao)
                         if response == 400:
                                 return response, f'Ocorreu um erro ao salvar tratamento de dados, não foi encontrado o campo que será usado como filtro, número do campo: {atributoModificacao}.'
-                            
-                        response, message = self.comparar_tipo_dado(ValorRemover, data[0]['VTTipoDado'])
+                        response, message = self.CompararTipoDado(ValorRemover, data[0]['VTTipoDado'],'ValorRemover')
                         if response == 400:
                                 return response,message    
-                            
                         response,message = self.FindDataProcessingByAdditionalFilter(idArquivo,configuracoesAdicionaisJson,operacao)
                         if response == 400:
                             return response,message
@@ -330,7 +327,7 @@ class TratamentoDadosRepository():
                             # region verificação campo valorFiltro
                             if not valor.get('valorFiltro'):
                                 return 400,f'Não foi encontrado o valor do filtro que será usado.'
-                            status, mensagem = self.comparar_tipo_dado(valor.get('valorFiltro'), data[0]['VTTipoDado'])
+                            status, mensagem = self.CompararTipoDado(valor.get('valorFiltro'), data[0]['VTTipoDado'],'valorFiltro')
                             if status == 400:
                                 return status,mensagem
                             #endregion    
@@ -348,31 +345,31 @@ class TratamentoDadosRepository():
         else:
             return 400, 'Valor inserido em tipo de operação é inválida'
         
-    def comparar_tipo_dado(self,valorFiltro, tipo_dado):
+        
+    def CompararTipoDado(self,valorFiltro, tipo_dado,nomeJsonVariavel):
         valor = valorFiltro
         if tipo_dado.value == TipoDado.int.value:
             tipo_dado = self.mapa_tipos.get(TipoDado.int.value)
             if tipo_dado == type(valor):
                 return 200,''
-            return 400, "O valor do filtro deve ser do tipo inteiro."
+            return 400, f"O valor da propriedade {nomeJsonVariavel} deve ser do tipo inteiro."
         elif tipo_dado.value == TipoDado.str.value:
             tipo_dado = self.mapa_tipos.get(TipoDado.str.value)
             if tipo_dado == type(valor):
                 return 200,''
-            return 400, "O valor do filtro deve ser do tipo string."
+            return 400, f"O valor da propriedade {nomeJsonVariavel} deve ser do tipo string."
         elif tipo_dado.value == TipoDado.float.value:
             tipo_dado = self.mapa_tipos.get(TipoDado.float.value)
             if tipo_dado == type(valor):
                 return 200,''
-            return 400, "O valor do filtro deve ser do tipo float."
+            return 400, f"O valor da propriedade {nomeJsonVariavel} deve ser do tipo float."
         elif tipo_dado.value == TipoDado.bool.value:
             tipo_dado = self.mapa_tipos.get(TipoDado.bool.value)
             if tipo_dado == type(valor):
                 return 200,''
-            return 400, "O valor do filtro deve ser do tipo booleano."
+            return 400, f"O valor da propriedade {nomeJsonVariavel} deve ser do tipo booleano."
         else:
             return 400,'Tipo não encontrado'
-        
         
     def ValidDataProcessing(self,idArquivo,idUsuario,tipoOP,valorFiltro):    
         if not idArquivo:
@@ -406,5 +403,15 @@ class TratamentoDadosRepository():
         Data = Database()
         response = Data.DoSelect(TratamentoDados,TDOperacao = tipoOperacao,TDIdArquivoProduto = idArquivo,TDConfiguracoesAdicionais = ValorConfiguracao)
         if len(response) > 0:
-            return 400,'Já existe o tratamento de remoção por valor semelhante a este registrado neste arquivo.'
+            return 400,'Já existe um tratamento de dados semelhante a este registrado neste arquivo.'
+        return 200,''
+    
+    def RemoveDataProcessing(self,idTratamento):
+        Data = Database()
+        response = Data.DoSelect(TratamentoDados,TDId = idTratamento)
+        if len(response) == 0:
+            return 400,f'Não foi encontrado o tratamento de dados específico com Id: {idTratamento}'
+        response = Data.DoDelete(TratamentoDados,TDId=idTratamento)
+        if response is None:
+            return 400,'Não foi possível deletar o registro.'
         return 200,''
