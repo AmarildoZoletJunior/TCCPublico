@@ -21,16 +21,16 @@ class ParametrosTreinamentoRepository():
         Data = Database()
         fileExist = Data.DoSelect(ArquivoProdutos,APId=ArquivoId)
         if len(fileExist) == 0:
-            return False,'Não foi encontrado o dataset de produto neste ID.'
+            return 400,'Não foi encontrado o dataset de produto neste ID.'
         
         userExist = Data.DoSelect(Usuarios,USUid=usuId)
         if len(userExist) == 0:
-            return False,'O usuário não existe.'
+            return 400,'O usuário não existe.'
         
         
         registerExist = Data.DoSelect(ParametrosTreinamento,APNumPca = numPca,APQtdeRecomendacoes = qtdeRecomendacao ,APIdArquivoProduto = ArquivoId)
         if len(registerExist) > 0:
-            return False,'Já existe um registro com estes parâmetros de treinamento para este dataset.'
+            return 400,'Já existe um registro com estes parâmetros de treinamento para este dataset.'
         
         response = Data.DoInsert(ParametrosTreinamento,APNumPca=numPca,APQtdeRecomendacoes=qtdeRecomendacao,APIdArquivoProduto=ArquivoId,APIdUsuario=usuId)
         if response is None:
@@ -38,17 +38,16 @@ class ParametrosTreinamentoRepository():
         
         return 200,''
         
-    def ModifyParametersData(self):
-        idParametros = self.Data.get('idParametros')
+    def ModifyParametersData(self,idParametro):
         numPca = self.Data.get('numPca')
         qtdeRecomendacao = self.Data.get('qtdeRecomendacao')
         self.ValidParameters(numPca,qtdeRecomendacao,1,1)
         
         Data = Database()
-        registerExist = Data.DoSelect(ParametrosTreinamento,APId=idParametros)
+        registerExist = Data.DoSelect(ParametrosTreinamento,APId=idParametro)
         if len(registerExist) == 0:
             return False,'Parametros não encontrado.'
-        response = Data.DoUpdate(ParametrosTreinamento,APId=idParametros,APQtdeRecomendacoes=qtdeRecomendacao,APNumPca=numPca)
+        response = Data.DoUpdate(ParametrosTreinamento,APId=idParametro,APQtdeRecomendacoes=qtdeRecomendacao,APNumPca=numPca)
         if response is None:
             return False,'Ocorreu um erro ao modificar o registro. Tente novamente.'
         
@@ -71,3 +70,10 @@ class ParametrosTreinamentoRepository():
             return False,'Não é possível recomendar 0 camadas de itens.'
         
         return True,''
+    
+    def DeleteParameters(self,idParametro):
+        Data = Database()
+        registerExist = Data.DoSelect(ParametrosTreinamento,APId = idParametro)
+        if len(registerExist) == 0:
+            return 400,'Não foi encontrado nenhum parâmetro com este ID.'
+        print()

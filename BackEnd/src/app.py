@@ -123,21 +123,35 @@ def DeleteUploadedProductsFile(IdArquivo):
 @app.route('/adicionarParametroTreinamento',methods=['POST'])
 def CreateTrainingParameters():
     try:
-        print("")
+        data = request.get_json(force=True)
+        ParametrosRep = ParametrosTreinamentoRepository(data)
+        response,message =  ParametrosRep.CreateParametersToData()
+        if response == 400:
+            return jsonify({'Erro':message})
+        return jsonify({'Mensagem': f'Parametro registrado com sucesso.'}), 200
     except Exception as error:
         return jsonify({'Erro': f'Ocorreu um erro: {error}'}), 500
         
 @app.route('/editarParametroTreinamento/<int:IdParametro>',methods=['PUT'])
 def EditTrainingParameters(IdParametro):
     try:
-        print("")
+        data = request.get_json(force=True)
+        ParametrosRep = ParametrosTreinamentoRepository(data)
+        response,message =  ParametrosRep.ModifyParametersData(IdParametro)
+        if response == 400:
+            return jsonify({'Erro':message})
+        return jsonify({'Mensagem': f'Parametro registrado com sucesso.'}), 200
     except Exception as error:
         return jsonify({'Erro': f'Ocorreu um erro: {error}'}), 500
         
 @app.route('/removerParametroTreinamento/<int:IdParametro>',methods=['DELETE'])
 def DeleteTrainingParameters(IdParametro):
     try:
-        print("")
+        ParametrosRep = ParametrosTreinamentoRepository('')
+        response,message =  ParametrosRep.DeleteParameters(IdParametro)
+        if response == 400:
+            return jsonify({'Erro':message})
+        return jsonify({'Mensagem': f'Parametro registrado com sucesso.'}), 200
     except Exception as error:
         return jsonify({'Erro': f'Ocorreu um erro: {error}'}), 500
 
