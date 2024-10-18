@@ -118,3 +118,5 @@ class ParametrosTreinamentoRepository():
         if len(parametersList) == 0:
             return 400,'Não foi encontrado nenhum parâmetro com este ID.',()
         return 200,'',parametersList
+    
+    

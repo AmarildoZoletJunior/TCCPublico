@@ -18,7 +18,7 @@ class ModelosRepository():
             return 400,message
         
         # Verificar a quantidade de produtos que existem no dataset
-        arquivosProdRep = ArquivosProdutosRepository()
+        arquivosProdRep = ArquivosProdutosRepository('')
         response,message,data = arquivosProdRep.FindFileById(arquivoId)
         
         QtdeProdutos = data[0]['APQtdeProdutos']
@@ -33,6 +33,9 @@ class ModelosRepository():
         if data[0]['APIdArquivoProduto'] != arquivoId:
             return 400,'Não é possível treinar um modelo utilizando parametros de outro dataset.'
         
+        
+
+
         
         # Aplicar todos os filtros existentes para o dataSet selecionado.
         
