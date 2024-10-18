@@ -71,7 +71,7 @@ class ArquivosProdutosRepository():
         
         
         
-    def RemoveFileProducts(idArquivo):
+    def RemoveFileProducts(self,idArquivo):
         if not idArquivo:
             return 400,'Id de arquivo inválido.'
         Data= Database()
@@ -87,5 +87,5 @@ class ArquivosProdutosRepository():
         Data = Database()
         response = Data.DoSelect(ArquivoProdutos,APId= idArquivo)
         if len(response) == 0:
-            return 400,'Não foi encontrado o arquivo que contém os produtos.'
-        return 200,''
+            return 400,'Não foi encontrado o arquivo que contém os produtos.',()
+        return 200,'',response

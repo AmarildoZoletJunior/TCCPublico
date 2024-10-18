@@ -35,7 +35,7 @@ class TratamentoDadosRepository():
         if response == 400:
             return response,message
         Data = Database()
-        response,message = ArquivosProdutosRepository('').FindFileById(idArquivo)
+        response,message,data = ArquivosProdutosRepository('').FindFileById(idArquivo)
         if response == 400:
             return response,message
         response,message = UserRepository('').FindUserById(idUsuario)
@@ -413,5 +413,5 @@ class TratamentoDadosRepository():
             return 400,f'Não foi encontrado o tratamento de dados específico com Id: {idTratamento}'
         response = Data.DoDelete(TratamentoDados,TDId=idTratamento)
         if response is None:
-            return 400,'Não foi possível deletar o registro.'
+            return 400,'Não foi possível deletar o registro. Tente novamente'
         return 200,''

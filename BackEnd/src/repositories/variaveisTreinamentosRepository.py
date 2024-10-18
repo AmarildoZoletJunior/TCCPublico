@@ -53,7 +53,7 @@ class VariaveisTreinamentoRepository():
         data = Database()
         response = data.DoSelect(VariaveisTreinamentos,VTId=idVariable)
         if len(response) == 0:
-            return 400,'Variável não encontrada.',()
+            return 400,'Variável não encontrada.'
         response = data.DoDelete(VariaveisTreinamentos,VTId = idVariable)
         if response is None:
             return 400,'Não foi possível deletar o registro, tente novamente.'

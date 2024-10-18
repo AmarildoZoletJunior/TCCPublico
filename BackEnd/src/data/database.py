@@ -162,9 +162,7 @@ class Database:
                 model_instance.APNumPca,
                 model_instance.APQtdeRecomendacoes,
                 model_instance.APIdArquivoProduto,
-                model_instance.APIdUsuario,
-                arquivo_produto=self.convert_to_dto(model_instance.ArquivoProdutos) if model_instance.ArquivoProdutos else None,
-                usuario=self.convert_to_dto(model_instance.Usuarios) if model_instance.Usuarios else None
+                model_instance.APIdUsuario
             ).to_dict()
 
         elif isinstance(model_instance, TratamentoDados):

@@ -5,7 +5,7 @@ import datetime
 from functools import wraps
 from flask import Flask, request, jsonify
 import pandas as pd
-
+from flasgger import Swagger
 
 from repositories.tratamentoDadosRepository import TratamentoDadosRepository
 from repositories.usuariosRepository import UserRepository
@@ -23,7 +23,7 @@ from src.config import configuration
 
 data = Database()
 app = Flask(__name__)
-
+swagger = Swagger(app)
 
 secret = app.config['SECRET_KEY'] = configuration.CHAVE
 
@@ -91,74 +91,100 @@ def SignInAccount():
     
     
     
+@app.route("/criar/usuario",methods=['POST'])
+def RegisterAccount():
+    try:
+        data = request.get_json(force=True)
+        UserRep = UserRepository(data)
+        response,message = UserRep.CreateUser()
+        if response == 400:
+            return jsonify({'Erro': message}), 400
+        else:
+            return jsonify({'Mensagem': f'Usuário cadastrado com sucesso'}), 200
+    except Exception as e:
+        return jsonify({'Erro': f'Ocorreu um erro, erro: {e}'}), 500
+    
+    
+@app.route("/atualizar/senha",methods=['PUT'])
+def ResetPassword():
+    try:
+        data = request.get_json(force=True)
+        UserRep = UserRepository(data)
+        response,message = UserRep.ResetPassword()
+        if response == 400:
+            return jsonify({'Erro': message}), 400
+        else:
+            return jsonify({'Mensagem': f'Usuário cadastrado com sucesso'}), 200
+    except Exception as e:
+        return jsonify({'Erro': f'Ocorreu um erro, erro: {e}'}), 500
+        
+
     
     
     
-    
-@app.route('/enviarArquivoProduto',methods=['POST'])
+@app.route('/enviarArquivoProduto',methods=['POST']) #ok
 def UploadProductsFile():
     try:
         Arquivo = ArquivosProdutosRepository(request)
         response,message = Arquivo.InsertDataFile()
         if response == 400:
-            return jsonify({'Erro': f'Ocorreu um erro: {message}'}), 500
+            return jsonify({'Erro': f'Ocorreu um erro: {message}'}), 400
         return jsonify({'Mensagem': f'Arquivo de produtos registrado com sucesso.'}), 200
     except Exception as error:
         return jsonify({'Erro': f'Ocorreu um erro: {error}'}), 500
         
-@app.route('/removerArquivoProduto/<int:IdArquivo>',methods=['DELETE'])
+@app.route('/removerArquivoProduto/<int:IdArquivo>',methods=['DELETE']) #ok
 def DeleteUploadedProductsFile(IdArquivo):
     try:
-        Arquivo = ArquivosProdutosRepository()
+        Arquivo = ArquivosProdutosRepository('')
         response,message = Arquivo.RemoveFileProducts(IdArquivo)
         if response == 400:
             return jsonify({'Erro': f'Ocorreu um erro: {message}'}), 400
-        return jsonify({'Mensagem': f''}), 200
+        return jsonify({'Mensagem': f'Registro de arquivo deletado com sucesso.'}), 200
     except Exception as error:
         return jsonify({'Erro': f'Ocorreu um erro: {error}'}), 500
         
         
         
         
-@app.route('/adicionarParametroTreinamento',methods=['POST'])
+        
+        
+        
+        
+        
+        
+@app.route('/adicionarParametroTreinamento',methods=['POST']) #ok
 def CreateTrainingParameters():
     try:
         data = request.get_json(force=True)
         ParametrosRep = ParametrosTreinamentoRepository(data)
         response,message =  ParametrosRep.CreateParametersToData()
         if response == 400:
-            return jsonify({'Erro':message})
+            return jsonify({'Erro':f'Ocorreu um erro: {message}'}),400
         return jsonify({'Mensagem': f'Parametro registrado com sucesso.'}), 200
     except Exception as error:
         return jsonify({'Erro': f'Ocorreu um erro: {error}'}), 500
         
-@app.route('/editarParametroTreinamento/<int:IdParametro>',methods=['PUT'])
+@app.route('/editarParametroTreinamento/<int:IdParametro>',methods=['PUT']) #ok
 def EditTrainingParameters(IdParametro):
     try:
         data = request.get_json(force=True)
         ParametrosRep = ParametrosTreinamentoRepository(data)
         response,message =  ParametrosRep.ModifyParametersData(IdParametro)
         if response == 400:
-            return jsonify({'Erro':message})
+            return jsonify({'Erro':f'Ocorreu um erro: {message}'}),400
         return jsonify({'Mensagem': f'Parametro registrado com sucesso.'}), 200
     except Exception as error:
         return jsonify({'Erro': f'Ocorreu um erro: {error}'}), 500
         
-@app.route('/removerParametroTreinamento/<int:IdParametro>',methods=['DELETE'])
+@app.route('/removerParametroTreinamento/<int:IdParametro>',methods=['DELETE']) #ok
 def DeleteTrainingParameters(IdParametro):
     try:
         ParametrosRep = ParametrosTreinamentoRepository('')
         response,message =  ParametrosRep.DeleteParameters(IdParametro)
         if response == 400:
-            return jsonify({'Erro':message})
+            return jsonify({'Erro':f'Ocorreu um erro: {message}'}),400
         return jsonify({'Mensagem': f'Parametro registrado com sucesso.'}), 200
-    except Exception as error:
-        return jsonify({'Erro': f'Ocorreu um erro: {error}'}), 500
-
-@app.route('/listarTodosParametrosTreinamentos',methods=['GET'])
-def ListAllTrainingParameters():
-    try:
-        print("")
     except Exception as error:
         return jsonify({'Erro': f'Ocorreu um erro: {error}'}), 500
         
@@ -189,29 +215,29 @@ def DeleteModel(IdModelo):
     
         
         
-@app.route('/criarTratamentoDados',methods=['POST'])
+        
+        
+        
+@app.route('/criarTratamentoDados',methods=['POST']) #ok
 def CreateDataProcessing():
     try:
         data = request.get_json(force=True)
         TratamentoDados = TratamentoDadosRepository(data)
         response,message = TratamentoDados.CreateDataProcessing()
         if response == 400:
-            return jsonify({'Erro': f'Ocorreu um erro: {message}'}), 500
+            return jsonify({'Erro': f'Ocorreu um erro: {message}'}), 400
         return jsonify({'Mensagem': f'Arquivo de produtos registrado com sucesso.'}), 200
     except Exception as error:
         return jsonify({'Erro': f'Ocorreu um erro: {error}'}), 500
         
-@app.route('/editarTratamentoDados/<int:IdTratamento>',methods=['POST'])
-def EditDataProcessing(IdTratamento):
-    try:
-        print("")
-    except Exception as error:
-        return jsonify({'Erro': f'Ocorreu um erro: {error}'}), 500
-        
-@app.route('/removerTratamentoDados/<int:IdTratamento>',methods=['DELETE'])
+@app.route('/removerTratamentoDados/<int:IdTratamento>',methods=['DELETE']) #ok
 def DeleteDataProcessing(IdTratamento):
     try:
-        print("")
+        TratamentoDados = TratamentoDadosRepository('')
+        response,message = TratamentoDados.RemoveDataProcessing(IdTratamento)
+        if response == 400:
+             return jsonify({'Erro': f'Ocorreu um erro: {message}'}), 400
+        return jsonify({'Mensagem': f'Registro de tratamento de dados removido com sucesso.'}), 200
     except Exception as error:
         return jsonify({'Erro': f'Ocorreu um erro: {error}'}), 500
     
@@ -223,38 +249,38 @@ def DeleteDataProcessing(IdTratamento):
     
     
     
-@app.route('/adicionarVariavel',methods=['POST'])
+@app.route('/adicionarVariavel',methods=['POST']) #ok
 def CreateVariable():
     try:
         data = request.get_json(force=True)
         variavelRep = VariaveisTreinamentoRepository(data)
         response,message = variavelRep.CreateVariable()
         if response == 400:
-            return jsonify({'Erro': f'Ocorreu um erro: {message}'}), 500
+            return jsonify({'Erro': f'Ocorreu um erro: {message}'}), 400
         return jsonify({'Mensagem': f'Variável registrada com sucesso.'}), 200
     except Exception as error:
         return jsonify({'Erro': f'Ocorreu um erro: {error}'}), 500
     
         
-@app.route('/editarVariavel/<int:idVariavel>',methods=['PUT'])
+@app.route('/editarVariavel/<int:idVariavel>',methods=['PUT']) #ok
 def UpdateVariable(idVariavel):
     try:
         data = request.get_json(force=True)
         variavelRep = VariaveisTreinamentoRepository(data)
         response,message = variavelRep.UpdateVariable(idVariavel)
         if response == 400:
-            return jsonify({'Erro': f'Ocorreu um erro: {message}'}), 500
+            return jsonify({'Erro': f'Ocorreu um erro: {message}'}), 400
         return jsonify({'Mensagem': f'Variável editada com sucesso.'}), 200
     except Exception as error:
         return jsonify({'Erro': f'Ocorreu um erro: {error}'}), 500
     
-@app.route('/removerVariavel/<int:idVariavel>',methods=['DELETE'])
+@app.route('/removerVariavel/<int:idVariavel>',methods=['DELETE']) #ok
 def DeleteVariable(idVariavel):
     try:
         variavelRep = VariaveisTreinamentoRepository('')
         response,message = variavelRep.DeleteVariable(idVariavel)
         if response == 400:
-            return jsonify({'Erro': f'Ocorreu um erro: {message}'}), 500
+            return jsonify({'Erro': f'Ocorreu um erro: {message}'}), 400
         return jsonify({'Mensagem': f'Variável removida com sucesso.'}), 200
     except Exception as error:
         return jsonify({'Erro': f'Ocorreu um erro: {error}'}), 500
