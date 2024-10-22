@@ -173,6 +173,14 @@ Para clonar o repositório, você precisa ter o Git Bash, GitHub Desktop ou se p
     * Digite `pip install poetry`
     * Após o download, verifique se foi feito o download 100% sem erros.
     * Digite `poetry install` e verifique se foi instalado 100% sem erros.
+    * Digite `poetry shell` dentro da pasta em que está localizado o arquivo poetry.lock
+    * Após ele entrar no shell do poetry, digite `flask run --debug`
+
+3. Para executar requisições em endpoints protegidos pelo JWT
+    * no Endpoint `http://<ip>:<porta>/login`, utilize as seguintes credenciais:
+      * Usuário: admin
+      * Senha: admin
+    * Após isto, em todo Endpoint que está protegido, faça autenticação utilizando a header `Authorization` e o valor inicial `Bearer SEU-TOKEN`
 
 # Alertas e Recomendações
 > [!WARNING]
