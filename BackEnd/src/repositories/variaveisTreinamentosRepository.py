@@ -94,3 +94,8 @@ class VariaveisTreinamentoRepository():
             return 400,'A propriedade tipoDado do só aceita tipo de dado inteiro.'
         
         return 200,''
+    
+    def SelectAllVariable(self,):
+        data = Database()
+        response = data.DoSelect(VariaveisTreinamentos)
+        return response

@@ -1,5 +1,6 @@
 import io
 
+
 import jwt
 import datetime
 from functools import wraps
@@ -13,7 +14,7 @@ from repositories.arquivosProdutosRepository import ArquivosProdutosRepository
 from repositories.variaveisTreinamentosRepository import VariaveisTreinamentoRepository
 from repositories.parametrosTreinamentoRepository import ParametrosTreinamentoRepository
 from repositories.usuariosRepository import UserRepository
-
+from repositories.modelosRepository import ModelosRepository
 
 
 
@@ -145,14 +146,6 @@ def DeleteUploadedProductsFile(IdArquivo):
         return jsonify({'Erro': f'Ocorreu um erro: {error}'}), 500
         
         
-        
-        
-        
-        
-        
-        
-        
-        
 @app.route('/adicionarParametroTreinamento',methods=['POST']) #ok
 def CreateTrainingParameters():
     try:
@@ -198,10 +191,13 @@ def ListAllTrainingModels():
     except Exception as error:
         return jsonify({'Erro': f'Ocorreu um erro: {error}'}), 500
         
-@app.route('/gerarModelo/<int:IdArquivo>',methods=['POST'])
-def GenerateModel(IdArquivo):
+@app.route('/gerarModelo',methods=['POST'])
+def GenerateModel():
     try:
-        print("")
+        data = request.get_json(force=True)
+        Modelos = ModelosRepository(data)
+        response,message = Modelos.RegisterModelOfTraining()
+        return jsonify({'Mensagem': message}), response
     except Exception as error:
         return jsonify({'Erro': f'Ocorreu um erro: {error}'}), 500
         

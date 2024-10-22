@@ -70,6 +70,9 @@ class TratamentoDadosRepository():
                     if valorNovo is None:
                         return 400,'Propriedade valorNovo da propriedade configuracoesAdicionais não foi encontrado.'
                     
+                    #Verificar se valor novo que será inserido é compatível com o dado da coluna
+                    
+                    
                     configuracoesAdicionaisJson = json.dumps(configuracoesAdicionais)
                     QtdeFiltros = len(valorFiltro)
                     if QtdeFiltros > 0:
@@ -100,7 +103,7 @@ class TratamentoDadosRepository():
                             #endregion
                             response, message = self.CompararTipoDado(valor['valorFiltro'], data[0]['VTTipoDado'],'valorFiltro')
                             if response == 400:
-                                return response,message  
+                                return response,message
                             
                                          
                         response,message,data = variavelrep.FindVariableById(atributoModificacao)
@@ -109,6 +112,14 @@ class TratamentoDadosRepository():
                         response, message = self.CompararTipoDado(valorNovo, data[0]['VTTipoDado'],'valorNovo')
                         if response == 400:
                                 return response,message
+                        if data[0]['VTTipoDado'].value == 2 or data[0]['VTTipoDado'].value == 3 or data[0]['VTTipoDado'].value == 4:
+                            match data[0]['VTTipoDado'].value:
+                                case 2:
+                                    return 400,'Não é possível inserir um tratamento de dados para o tipo inteiro.'
+                                case 3:
+                                    return 400,'Não é possível inserir um tratamento de dados para o tipo verdadeiro/falso.'
+                                case 4:
+                                    return 400,'Não é possível inserir um tratamento de dados para o tipo números quebrados.'
                         response,message = self.FindDataProcessingByAdditionalFilter(idArquivo,configuracoesAdicionaisJson,operacao)
                         if response == 400:
                             return response,message     
@@ -123,6 +134,14 @@ class TratamentoDadosRepository():
                         response, message = self.CompararTipoDado(valorNovo, data[0]['VTTipoDado'],'valorNovo')
                         if response == 400:
                                 return response,message
+                        if data[0]['VTTipoDado'].value == 2 or data[0]['VTTipoDado'].value == 3 or data[0]['VTTipoDado'].value == 4:
+                            match data[0]['VTTipoDado'].value:
+                                case 2:
+                                    return 400,'Não é possível inserir um tratamento de dados para o tipo inteiro'
+                                case 3:
+                                    return 400,'Não é possível inserir um tratamento de dados para o tipo verdadeiro/falso'
+                                case 4:
+                                    return 400,'Não é possível inserir um tratamento de dados para o tipo números quebrados.'
                         response,message = self.FindDataProcessingByAdditionalFilter(idArquivo,configuracoesAdicionaisJson,operacao)
                         if response == 400:
                             return response,message     
@@ -154,6 +173,7 @@ class TratamentoDadosRepository():
                     if valorNovo is None:
                         return 400,'Propriedade valorNovo da propriedade configuracoesAdicionais não foi encontrado.'
                     
+                    
                     configuracoesAdicionaisJson = json.dumps(configuracoesAdicionais)
                     QtdeFiltros = len(valorFiltro)
                     if QtdeFiltros > 0:
@@ -172,12 +192,6 @@ class TratamentoDadosRepository():
                             if response == 400:
                                 return response, f'Ocorreu um erro ao salvar tratamento de dados, não foi encontrado o campo que será usado como filtro, número do campo: {valor['campoFiltro']}.'
                             # endregion       
-                            # region verificação campo tipoFiltro
-                            if not valor.get('tipoFiltro'):
-                                return 400,f'Não foi encontrado o tipo de filtro que será usado.'
-                            if not isinstance(valor.get('tipoFiltro'), int):
-                                return 400,f'O tipoFiltro deve ser do tipo inteiro.'
-                            #endregion
                             # region verificação campo valorFiltro
                             if not valor.get('valorFiltro'):
                                 return 400,f'Não foi encontrado o valor do filtro que será usado.'
@@ -185,7 +199,13 @@ class TratamentoDadosRepository():
                             response, message = self.CompararTipoDado(valor.get('valorFiltro'), data[0]['VTTipoDado'],'valorFiltro')
                             if response == 400:
                                 return response,message 
-                                         
+                            # region verificação campo tipoFiltro
+                            if not valor.get('tipoFiltro'):
+                                return 400,f'Não foi encontrado o tipo de filtro que será usado.'
+                            if not isinstance(valor.get('tipoFiltro'), int):
+                                return 400,f'O tipoFiltro deve ser do tipo inteiro.'
+                            #endregion          
+
                         response,message,data = variavelrep.FindVariableById(atributoModificacao)
                         if response == 400:
                                 return response, f'Ocorreu um erro ao salvar tratamento de dados, não foi encontrado o campo que será usado como atributo a ser modificado, número do campo: {atributoModificacao}.'
@@ -278,6 +298,14 @@ class TratamentoDadosRepository():
                         response, message = self.CompararTipoDado(ValorRemover, data[0]['VTTipoDado'],'ValorRemover')
                         if response == 400:
                                 return response,message
+                        if data[0]['VTTipoDado'].value == 2 or data[0]['VTTipoDado'].value == 3 or data[0]['VTTipoDado'].value == 4:
+                            match data[0]['VTTipoDado'].value:
+                                case 2:
+                                    return 400,'Não é possível inserir um tratamento de dados para o tipo inteiro.'
+                                case 3:
+                                    return 400,'Não é possível inserir um tratamento de dados para o tipo verdadeiro/falso.'
+                                case 4:
+                                    return 400,'Não é possível inserir um tratamento de dados para o tipo números quebrados.'
                         response,message = self.FindDataProcessingByAdditionalFilter(idArquivo,configuracoesAdicionaisJson,operacao)
                         if response == 400:
                             return response,message     
@@ -295,6 +323,15 @@ class TratamentoDadosRepository():
                         response, message = self.CompararTipoDado(ValorRemover, data[0]['VTTipoDado'],'ValorRemover')
                         if response == 400:
                                 return response,message    
+                            
+                        if data[0]['VTTipoDado'].value == 2 or data[0]['VTTipoDado'].value == 3 or data[0]['VTTipoDado'].value == 4:
+                            match data[0]['VTTipoDado'].value:
+                                case 2:
+                                    return 400,'Não é possível inserir um tratamento de dados para o tipo inteiro.'
+                                case 3:
+                                    return 400,'Não é possível inserir um tratamento de dados para o tipo verdadeiro/falso.'
+                                case 4:
+                                    return 400,'Não é possível inserir um tratamento de dados para o tipo números quebrados.'
                         response,message = self.FindDataProcessingByAdditionalFilter(idArquivo,configuracoesAdicionaisJson,operacao)
                         if response == 400:
                             return response,message
@@ -382,16 +419,6 @@ class TratamentoDadosRepository():
             return 400,'Parâmetro filtros é obrigatório'
         return 200,''
         
-    def StartDataProcessing(dataSet,arquivoId):
-        Data = Database()
-        # responseArquivo = Data.DoSelect(ArquivoProdutos,APId=arquivoId)
-        # if len(responseArquivo) == 0:
-        #     return False,'Não foi encontrado a base de dados dos produto.'
-        # responseTratamentoDados = Data.DoSelect(TratamentoDados,TDIdArquivoProduto=arquivoId)
-        # if len(responseTratamentoDados) == 0:
-        #     return True,'Não existe regra de tratamento de dados ativo.'
-        return True,''
-    
     def FindDataProcessingByFilterValue(self,idArquivo,ValorFiltro,tipoOperacao):
         Data = Database()
         response = Data.DoSelect(TratamentoDados,TDOperacao = tipoOperacao,TDIdArquivoProduto = idArquivo,TDValorFiltro = ValorFiltro)
@@ -405,6 +432,11 @@ class TratamentoDadosRepository():
         if len(response) > 0:
             return 400,'Já existe um tratamento de dados semelhante a este registrado neste arquivo.'
         return 200,''
+    
+    def FindDataProcessingByFileId(self,idArquivo):
+        Data = Database()
+        response = Data.DoSelect(TratamentoDados,TDIdArquivoProduto = idArquivo)
+        return response
     
     def RemoveDataProcessing(self,idTratamento):
         Data = Database()
