@@ -40,6 +40,7 @@ class ModelosRepository():
         if not response:
             return 400,message
         
+        # Verificar a quantidade de produtos que existem no dataset
         arquivosProdRep = ArquivosProdutosRepository('')
         response,message,data = arquivosProdRep.FindFileById(arquivoId)
         
@@ -239,6 +240,9 @@ class ModelosRepository():
         
         
         return 200,'Ok'
+
+
+        
         # Aplicar todos os filtros existentes para o dataSet selecionado.
         
         # Verificar a quantidade de registros que ficou após a limpeza do dataset
