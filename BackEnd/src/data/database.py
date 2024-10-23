@@ -141,7 +141,8 @@ class Database:
                 model_instance.APDataPostagem,
                 model_instance.APArquivo,
                 model_instance.APIdUsuario,
-                model_instance.APVersao
+                model_instance.APVersao,
+                model_instance.APArquivoDelimiter
             ).to_dict()
         
         elif isinstance(model_instance, Modelos):

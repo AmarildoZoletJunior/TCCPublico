@@ -9,6 +9,7 @@ class ArquivoProdutos(Base):
     APQtdeProdutos = Column(Integer)
     APDataPostagem = Column(Date)
     APArquivo = Column(LargeBinary,nullable=False)
+    APArquivoDelimiter = Column(String,nullable=False)
     APIdUsuario = Column(Integer, ForeignKey('Usuarios.USUid'),nullable=False)
     APVersao = Column(String,nullable=False)
 

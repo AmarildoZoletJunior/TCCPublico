@@ -27,7 +27,7 @@ class ArquivosProdutosRepository():
         response,message = UserRepo.FindUserById(idUsuario)
         if response == 400:
             return response,message  
-        response = Data.DoInsert(ArquivoProdutos,APQtdeProdutos=len(self.ArquivoCSV),APDataPostagem = datetime.date.today(),APArquivo = self.file_content,APIdUsuario = idUsuario ,APVersao = versao)
+        response = Data.DoInsert(ArquivoProdutos,APQtdeProdutos=len(self.ArquivoCSV),APDataPostagem = datetime.date.today(),APArquivoDelimiter = delimiter,APArquivo = self.file_content,APIdUsuario = idUsuario ,APVersao = versao)
         if response is None:
             return 400,'Ocorreu um erro ao inserir o registro, tente novamente.'
         return 200,''

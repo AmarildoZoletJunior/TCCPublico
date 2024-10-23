@@ -14,6 +14,7 @@ configparser = "^7.1.0"
 flask = "^3.0.3"
 pandas = "^2.2.3"
 flasgger = "^0.9.7.1"
+scikit-learn = "^1.5.2"
 
 
 [build-system]
