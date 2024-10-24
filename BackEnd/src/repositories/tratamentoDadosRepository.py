@@ -1,4 +1,5 @@
 import json
+from domain.enum.tipoFiltro import TipoFiltro
 from data.database import Database
 from domain.entities.tratamentoDados import TratamentoDados
 from domain.enum.tipoDado import TipoDado
@@ -72,7 +73,6 @@ class TratamentoDadosRepository():
                     
                     #Verificar se valor novo que será inserido é compatível com o dado da coluna
                     
-                    
                     configuracoesAdicionaisJson = json.dumps(configuracoesAdicionais)
                     QtdeFiltros = len(valorFiltro)
                     if QtdeFiltros > 0:
@@ -82,6 +82,7 @@ class TratamentoDadosRepository():
                                 return response,message
                         variavelrep = VariaveisTreinamentoRepository('')
                         for valor in valorFiltro:
+                            
                             # region verificação campo Filtro
                             if not valor.get('campoFiltro'):
                                 return 400,f'Não foi encontrado o campo que será usado como filtro.'
@@ -91,20 +92,76 @@ class TratamentoDadosRepository():
                             if response == 400:
                                 return response, f'Ocorreu um erro ao salvar tratamento de dados, não foi encontrado o campo que será usado como filtro, número do campo: {valor['campoFiltro']}.'
                             # endregion       
-                            # region verificação campo tipoFiltro
-                            if not valor.get('tipoFiltro'):
-                                return 400,f'Não foi encontrado o tipo de filtro que será usado.'
-                            if not isinstance(valor.get('tipoFiltro'), int):
-                                return 400,f'O tipoFiltro deve ser do tipo inteiro.'
-                            #endregion
-                            # region verificação campo valorFiltro
-                            if not valor.get('valorFiltro'):
-                                return 400,f'Não foi encontrado o valor do filtro que será usado.'
-                            #endregion
+                                         
                             response, message = self.CompararTipoDado(valor['valorFiltro'], data[0]['VTTipoDado'],'valorFiltro')
                             if response == 400:
                                 return response,message
                             
+                            
+                            match data[0]['VTTipoDado'].value:
+                                case TipoDado.int.value:
+                                        # region verificação campo tipoFiltro
+                                        if not valor.get('tipoFiltro'):
+                                            return 400,f'Não foi encontrado o tipo de filtro que será usado.'
+                                        if not isinstance(valor.get('tipoFiltro'), int):
+                                            return 400,f'O tipoFiltro deve ser do tipo inteiro.'
+                                        
+                                        if valor.get('tipoFiltro') in (TipoFiltro.Contem.value,TipoFiltro.Inicia.value,TipoFiltro.Finaliza.value,TipoFiltro.NaoContem.value):
+                                            return 400,f'O tipoFiltro de uma variável do tipo inteiro não pode utilizar filtros de número 1,3,4,5.'
+                                        #endregion
+                                        
+                                        # region verificação campo valorFiltro
+                                        if not valor.get('valorFiltro'):
+                                            return 400,f'Não foi encontrado o valor do filtro que será usado.'
+                                        #endregion
+                                case TipoDado.str.value:
+                                    
+                                        # region verificação campo tipoFiltro
+                                        if not valor.get('tipoFiltro'):
+                                            return 400,f'Não foi encontrado o tipo de filtro que será usado.'
+                                        if not isinstance(valor.get('tipoFiltro'), int):
+                                            return 400,f'O tipoFiltro deve ser do tipo inteiro.'
+                                        
+                                        if valor.get('tipoFiltro') in (TipoFiltro.Maior.value,TipoFiltro.Menor.value):
+                                            return 400,f'O tipoFiltro de uma variável texto não pode utilizar filtros de número 6,7.'
+                                        #endregion
+                                        
+                                        # region verificação campo valorFiltro
+                                        if not valor.get('valorFiltro'):
+                                            return 400,f'Não foi encontrado o valor do filtro que será usado.'
+                                        #endregion
+                                case TipoDado.float.value:
+                                    
+                                        # region verificação campo tipoFiltro
+                                        if not valor.get('tipoFiltro'):
+                                            return 400,f'Não foi encontrado o tipo de filtro que será usado.'
+                                        if not isinstance(valor.get('tipoFiltro'), int):
+                                            return 400,f'O tipoFiltro deve ser do tipo inteiro.'
+                                        
+                                        if valor.get('tipoFiltro') in (TipoFiltro.Contem.value,TipoFiltro.Inicia.value,TipoFiltro.Finaliza.value,TipoFiltro.NaoContem.value):
+                                            return 400,f'O tipoFiltro de uma variável do tipo número quebrado não pode utilizar filtros de número 1,3,4,5.'
+                                        #endregion
+                                        
+                                        # region verificação campo valorFiltro
+                                        if not valor.get('valorFiltro'):
+                                            return 400,f'Não foi encontrado o valor do filtro que será usado.'
+                                        #endregion
+                                case TipoDado.bool.value:
+                                    
+                                        # region verificação campo tipoFiltro
+                                        if not valor.get('tipoFiltro'):
+                                            return 400,f'Não foi encontrado o tipo de filtro que será usado.'
+                                        if not isinstance(valor.get('tipoFiltro'), int):
+                                            return 400,f'O tipoFiltro deve ser do tipo inteiro.'
+                                        
+                                        if valor.get('tipoFiltro') in (TipoFiltro.Contem.value,TipoFiltro.Inicia.value,TipoFiltro.Finaliza.value,TipoFiltro.NaoContem.value,TipoFiltro.Maior.value,TipoFiltro.Menor.value):
+                                            return 400,f'O tipoFiltro de uma variável do tipo verdadeiro/falso não pode utilizar filtros de número 1,3,4,5,6,7.'
+                                        #endregion
+                                        
+                                        # region verificação campo valorFiltro
+                                        if not valor.get('valorFiltro'):
+                                            return 400,f'Não foi encontrado o valor do filtro que será usado.'
+                                        #endregion
                                          
                         response,message,data = variavelrep.FindVariableById(atributoModificacao)
                         if response == 400:
@@ -192,19 +249,77 @@ class TratamentoDadosRepository():
                             if response == 400:
                                 return response, f'Ocorreu um erro ao salvar tratamento de dados, não foi encontrado o campo que será usado como filtro, número do campo: {valor['campoFiltro']}.'
                             # endregion       
-                            # region verificação campo valorFiltro
-                            if not valor.get('valorFiltro'):
-                                return 400,f'Não foi encontrado o valor do filtro que será usado.'
-                            #endregion
-                            response, message = self.CompararTipoDado(valor.get('valorFiltro'), data[0]['VTTipoDado'],'valorFiltro')
+                                         
+                            response, message = self.CompararTipoDado(valor['valorFiltro'], data[0]['VTTipoDado'],'valorFiltro')
                             if response == 400:
-                                return response,message 
-                            # region verificação campo tipoFiltro
-                            if not valor.get('tipoFiltro'):
-                                return 400,f'Não foi encontrado o tipo de filtro que será usado.'
-                            if not isinstance(valor.get('tipoFiltro'), int):
-                                return 400,f'O tipoFiltro deve ser do tipo inteiro.'
-                            #endregion          
+                                return response,message
+                            
+                            
+                            match data[0]['VTTipoDado'].value:
+                                case TipoDado.int.value:
+                                        # region verificação campo tipoFiltro
+                                        if not valor.get('tipoFiltro'):
+                                            return 400,f'Não foi encontrado o tipo de filtro que será usado.'
+                                        if not isinstance(valor.get('tipoFiltro'), int):
+                                            return 400,f'O tipoFiltro deve ser do tipo inteiro.'
+                                        
+                                        if valor.get('tipoFiltro') in (TipoFiltro.Contem.value,TipoFiltro.Inicia.value,TipoFiltro.Finaliza.value,TipoFiltro.NaoContem.value):
+                                            return 400,f'O tipoFiltro de uma variável do tipo inteiro não pode utilizar filtros de número 1,3,4,5.'
+                                        #endregion
+                                        
+                                        # region verificação campo valorFiltro
+                                        if not valor.get('valorFiltro'):
+                                            return 400,f'Não foi encontrado o valor do filtro que será usado.'
+                                        #endregion
+                                case TipoDado.str.value:
+                                    
+                                        # region verificação campo tipoFiltro
+                                        if not valor.get('tipoFiltro'):
+                                            return 400,f'Não foi encontrado o tipo de filtro que será usado.'
+                                        if not isinstance(valor.get('tipoFiltro'), int):
+                                            return 400,f'O tipoFiltro deve ser do tipo inteiro.'
+                                        
+                                        if valor.get('tipoFiltro') in (TipoFiltro.Maior.value,TipoFiltro.Menor.value):
+                                            return 400,f'O tipoFiltro de uma variável texto não pode utilizar filtros de número 6,7.'
+                                        #endregion
+                                        
+                                        # region verificação campo valorFiltro
+                                        if not valor.get('valorFiltro'):
+                                            return 400,f'Não foi encontrado o valor do filtro que será usado.'
+                                        #endregion
+                                case TipoDado.float.value:
+                                    
+                                        # region verificação campo tipoFiltro
+                                        if not valor.get('tipoFiltro'):
+                                            return 400,f'Não foi encontrado o tipo de filtro que será usado.'
+                                        if not isinstance(valor.get('tipoFiltro'), int):
+                                            return 400,f'O tipoFiltro deve ser do tipo inteiro.'
+                                        
+                                        if valor.get('tipoFiltro') in (TipoFiltro.Contem.value,TipoFiltro.Inicia.value,TipoFiltro.Finaliza.value,TipoFiltro.NaoContem.value):
+                                            return 400,f'O tipoFiltro de uma variável do tipo número quebrado não pode utilizar filtros de número 1,3,4,5.'
+                                        #endregion
+                                        
+                                        # region verificação campo valorFiltro
+                                        if not valor.get('valorFiltro'):
+                                            return 400,f'Não foi encontrado o valor do filtro que será usado.'
+                                        #endregion
+                                case TipoDado.bool.value:
+                                    
+                                        # region verificação campo tipoFiltro
+                                        if not valor.get('tipoFiltro'):
+                                            return 400,f'Não foi encontrado o tipo de filtro que será usado.'
+                                        if not isinstance(valor.get('tipoFiltro'), int):
+                                            return 400,f'O tipoFiltro deve ser do tipo inteiro.'
+                                        
+                                        if valor.get('tipoFiltro') in (TipoFiltro.Contem.value,TipoFiltro.Inicia.value,TipoFiltro.Finaliza.value,TipoFiltro.NaoContem.value,TipoFiltro.Maior.value,TipoFiltro.Menor.value):
+                                            return 400,f'O tipoFiltro de uma variável do tipo verdadeiro/falso não pode utilizar filtros de número 1,3,4,5,6,7.'
+                                        #endregion
+                                        
+                                        # region verificação campo valorFiltro
+                                        if not valor.get('valorFiltro'):
+                                            return 400,f'Não foi encontrado o valor do filtro que será usado.'
+                                        #endregion
+                                         
 
                         response,message,data = variavelrep.FindVariableById(atributoModificacao)
                         if response == 400:
@@ -279,19 +394,77 @@ class TratamentoDadosRepository():
                             if response == 400:
                                 return response, f'Ocorreu um erro ao salvar tratamento de dados, não foi encontrado o campo que será usado como filtro, número do campo: {valor['campoFiltro']}.'
                             # endregion       
-                            # region verificação campo tipoFiltro
-                            if not valor.get('tipoFiltro'):
-                                return 400,f'Não foi encontrado o tipo de filtro que será usado.'
-                            if not isinstance(valor.get('tipoFiltro'), int):
-                                return 400,f'O tipoFiltro deve ser do tipo inteiro.'
-                            #endregion
-                            # region verificação campo valorFiltro
-                            if not valor.get('valorFiltro'):
-                                return 400,f'Não foi encontrado o valor do filtro que será usado.'
-                            #endregion
+                                         
                             response, message = self.CompararTipoDado(valor['valorFiltro'], data[0]['VTTipoDado'],'valorFiltro')
                             if response == 400:
-                                return response,message   
+                                return response,message
+                            
+                            
+                            match data[0]['VTTipoDado'].value:
+                                case TipoDado.int.value:
+                                        # region verificação campo tipoFiltro
+                                        if not valor.get('tipoFiltro'):
+                                            return 400,f'Não foi encontrado o tipo de filtro que será usado.'
+                                        if not isinstance(valor.get('tipoFiltro'), int):
+                                            return 400,f'O tipoFiltro deve ser do tipo inteiro.'
+                                        
+                                        if valor.get('tipoFiltro') in (TipoFiltro.Contem.value,TipoFiltro.Inicia.value,TipoFiltro.Finaliza.value,TipoFiltro.NaoContem.value):
+                                            return 400,f'O tipoFiltro de uma variável do tipo inteiro não pode utilizar filtros de número 1,3,4,5.'
+                                        #endregion
+                                        
+                                        # region verificação campo valorFiltro
+                                        if not valor.get('valorFiltro'):
+                                            return 400,f'Não foi encontrado o valor do filtro que será usado.'
+                                        #endregion
+                                case TipoDado.str.value:
+                                    
+                                        # region verificação campo tipoFiltro
+                                        if not valor.get('tipoFiltro'):
+                                            return 400,f'Não foi encontrado o tipo de filtro que será usado.'
+                                        if not isinstance(valor.get('tipoFiltro'), int):
+                                            return 400,f'O tipoFiltro deve ser do tipo inteiro.'
+                                        
+                                        if valor.get('tipoFiltro') in (TipoFiltro.Maior.value,TipoFiltro.Menor.value):
+                                            return 400,f'O tipoFiltro de uma variável texto não pode utilizar filtros de número 6,7.'
+                                        #endregion
+                                        
+                                        # region verificação campo valorFiltro
+                                        if not valor.get('valorFiltro'):
+                                            return 400,f'Não foi encontrado o valor do filtro que será usado.'
+                                        #endregion
+                                case TipoDado.float.value:
+                                    
+                                        # region verificação campo tipoFiltro
+                                        if not valor.get('tipoFiltro'):
+                                            return 400,f'Não foi encontrado o tipo de filtro que será usado.'
+                                        if not isinstance(valor.get('tipoFiltro'), int):
+                                            return 400,f'O tipoFiltro deve ser do tipo inteiro.'
+                                        
+                                        if valor.get('tipoFiltro') in (TipoFiltro.Contem.value,TipoFiltro.Inicia.value,TipoFiltro.Finaliza.value,TipoFiltro.NaoContem.value):
+                                            return 400,f'O tipoFiltro de uma variável do tipo número quebrado não pode utilizar filtros de número 1,3,4,5.'
+                                        #endregion
+                                        
+                                        # region verificação campo valorFiltro
+                                        if not valor.get('valorFiltro'):
+                                            return 400,f'Não foi encontrado o valor do filtro que será usado.'
+                                        #endregion
+                                case TipoDado.bool.value:
+                                    
+                                        # region verificação campo tipoFiltro
+                                        if not valor.get('tipoFiltro'):
+                                            return 400,f'Não foi encontrado o tipo de filtro que será usado.'
+                                        if not isinstance(valor.get('tipoFiltro'), int):
+                                            return 400,f'O tipoFiltro deve ser do tipo inteiro.'
+                                        
+                                        if valor.get('tipoFiltro') in (TipoFiltro.Contem.value,TipoFiltro.Inicia.value,TipoFiltro.Finaliza.value,TipoFiltro.NaoContem.value,TipoFiltro.Maior.value,TipoFiltro.Menor.value):
+                                            return 400,f'O tipoFiltro de uma variável do tipo verdadeiro/falso não pode utilizar filtros de número 1,3,4,5,6,7.'
+                                        #endregion
+                                        
+                                        # region verificação campo valorFiltro
+                                        if not valor.get('valorFiltro'):
+                                            return 400,f'Não foi encontrado o valor do filtro que será usado.'
+                                        #endregion
+
                         response,message,data = variavelrep.FindVariableById(atributoModificacao)
                         if response == 400:
                                 return response, f'Ocorreu um erro ao salvar tratamento de dados, não foi encontrado o campo que será usado como atributo a ser modificado, número do campo: {atributoModificacao}.'
@@ -354,20 +527,79 @@ class TratamentoDadosRepository():
                             response,message,data = variavelrep.FindVariableById(valor['campoFiltro'])
                             if response == 400:
                                 return response, f'Ocorreu um erro ao salvar tratamento de dados, não foi encontrado o campo que será usado como filtro, número do campo: {valor['campoFiltro']}.'
-                            #endregion   
-                            # region verificação campo tipoFiltro
-                            if not valor.get('tipoFiltro'):
-                                return 400,f'Não foi encontrado o tipo de filtro que será usado.'
-                            if not isinstance(valor.get('tipoFiltro'), int):
-                                return 400,f'O tipoFiltro deve ser do tipo inteiro.'
-                            #endregion
-                            # region verificação campo valorFiltro
-                            if not valor.get('valorFiltro'):
-                                return 400,f'Não foi encontrado o valor do filtro que será usado.'
-                            status, mensagem = self.CompararTipoDado(valor.get('valorFiltro'), data[0]['VTTipoDado'],'valorFiltro')
-                            if status == 400:
-                                return status,mensagem
-                            #endregion    
+                            # endregion       
+                                         
+                            response, message = self.CompararTipoDado(valor['valorFiltro'], data[0]['VTTipoDado'],'valorFiltro')
+                            if response == 400:
+                                return response,message
+                            
+                            match data[0]['VTTipoDado'].value:
+                                case TipoDado.int.value:
+                                        print(1)
+                                        # region verificação campo tipoFiltro
+                                        if not valor.get('tipoFiltro'):
+                                            return 400,f'Não foi encontrado o tipo de filtro que será usado.'
+                                        if not isinstance(valor.get('tipoFiltro'), int):
+                                            return 400,f'O tipoFiltro deve ser do tipo inteiro.'
+                                        
+                                        if valor.get('tipoFiltro') in (TipoFiltro.Contem.value,TipoFiltro.Inicia.value,TipoFiltro.Finaliza.value,TipoFiltro.NaoContem.value):
+                                            return 400,f'O tipoFiltro de uma variável do tipo inteiro não pode utilizar filtros de número 1,3,4,5.'
+                                        #endregion
+                                        
+                                        # region verificação campo valorFiltro
+                                        if not valor.get('valorFiltro'):
+                                            return 400,f'Não foi encontrado o valor do filtro que será usado.'
+                                        #endregion
+                                case TipoDado.str.value:
+                                        print(2)
+                                        # region verificação campo tipoFiltro
+                                        if not valor.get('tipoFiltro'):
+                                            return 400,f'Não foi encontrado o tipo de filtro que será usado.'
+                                        if not isinstance(valor.get('tipoFiltro'), int):
+                                            return 400,f'O tipoFiltro deve ser do tipo inteiro.'
+                                        
+                                        if valor.get('tipoFiltro') in (TipoFiltro.Maior.value,TipoFiltro.Menor.value):
+                                            return 400,f'O tipoFiltro de uma variável texto não pode utilizar filtros de número 6,7.'
+                                        #endregion
+                                        
+                                        # region verificação campo valorFiltro
+                                        if not valor.get('valorFiltro'):
+                                            return 400,f'Não foi encontrado o valor do filtro que será usado.'
+                                        #endregion
+                                case TipoDado.float.value:
+                                        print(3)
+                                        # region verificação campo tipoFiltro
+                                        if not valor.get('tipoFiltro'):
+                                            return 400,f'Não foi encontrado o tipo de filtro que será usado.'
+                                        if not isinstance(valor.get('tipoFiltro'), int):
+                                            return 400,f'O tipoFiltro deve ser do tipo inteiro.'
+                                        
+                                        if valor.get('tipoFiltro') in (TipoFiltro.Contem.value,TipoFiltro.Inicia.value,TipoFiltro.Finaliza.value,TipoFiltro.NaoContem.value):
+                                            return 400,f'O tipoFiltro de uma variável do tipo número quebrado não pode utilizar filtros de número 1,3,4,5.'
+                                        #endregion
+                                        
+                                        # region verificação campo valorFiltro
+                                        if not valor.get('valorFiltro'):
+                                            return 400,f'Não foi encontrado o valor do filtro que será usado.'
+                                        #endregion
+                                case TipoDado.bool.value:
+                                        print(4)
+                                        # region verificação campo tipoFiltro
+                                        if not valor.get('tipoFiltro'):
+                                            return 400,f'Não foi encontrado o tipo de filtro que será usado.'
+                                        if not isinstance(valor.get('tipoFiltro'), int):
+                                            return 400,f'O tipoFiltro deve ser do tipo inteiro.'
+                                        
+                                        if valor.get('tipoFiltro') in (TipoFiltro.Contem.value,TipoFiltro.Inicia.value,TipoFiltro.Finaliza.value,TipoFiltro.NaoContem.value,TipoFiltro.Maior.value,TipoFiltro.Menor.value):
+                                            return 400,f'O tipoFiltro de uma variável do tipo verdadeiro/falso não pode utilizar filtros de número 1,3,4,5,6,7.'
+                                        #endregion
+                                        
+                                        # region verificação campo valorFiltro
+                                        if not valor.get('valorFiltro'):
+                                            return 400,f'Não foi encontrado o valor do filtro que será usado.'
+                                        #endregion
+                                case _:
+                                    print('Caiu no nada')         
                         operacao = self.operacao_mapeada.get(tipoOP)
                         valorFiltroJson = json.dumps(valorFiltro)
                         response,message = self.FindDataProcessingByFilterValue(idArquivo,valorFiltroJson,operacao)

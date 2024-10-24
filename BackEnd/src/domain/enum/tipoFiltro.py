@@ -6,6 +6,8 @@ class TipoFiltro(enum.Enum):
     Inicia = 3
     Finaliza = 4
     NaoContem = 5
+    Maior = 6
+    Menor = 7
     
     
     
